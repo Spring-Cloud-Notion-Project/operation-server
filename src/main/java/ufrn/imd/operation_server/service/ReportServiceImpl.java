@@ -1,5 +1,6 @@
 package ufrn.imd.operation_server.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,4 +16,5 @@ public class ReportServiceImpl implements ReportService {
     public ResponseEntity<String> getTasksReport(AINotionRequest aiNotionRequest) {
         return ResponseEntity.ok(aiServiceInterface.notionChat(aiNotionRequest));
     }
+
 }

@@ -1,0 +1,24 @@
+type Query{
+    getAllReports: [Document]
+    getDocumentById(id: ID!): Document
+}
+
+type Mutation {
+    generateReport(input: AINotionRequestInput!): CreateReportResponse
+}
+
+type Document {
+    id: ID!
+    name: String
+    fullPath: String
+}
+
+input AINotionRequestInput {
+    page: String
+    prompt: String
+}
+
+type CreateReportResponse {
+    message: String
+    AIResponse: String
+}

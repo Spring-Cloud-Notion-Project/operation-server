@@ -1,10 +1,14 @@
 package ufrn.imd.operation_server.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import ufrn.imd.operation_server.request.AINotionRequest;
+import ufrn.imd.operation_server.models.Document;
+import ufrn.imd.operation_server.request.AINotionRequestInput;
+import ufrn.imd.operation_server.response.CreateReportResponse;
+import ufrn.imd.operation_server.response.GenerateDocumentResponse;
+
+import java.util.List;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -13,27 +17,35 @@ public class ReportServiceImpl implements ReportService {
     AIServiceInterface aiServiceInterface;
 
     @Autowired
-    ValidationServiceInterface validationServiceInterface;
-
+    DocumentServiceInterface documentServiceInterface;
     @Override
-    public ResponseEntity<String> getTasksReport(AINotionRequest aiNotionRequest) {
-        String aiResponse;
+    public CreateReportResponse generateDocument(AINotionRequestInput aiNotionRequest) {
+        String AIResponse;
         try {
-            aiResponse = aiServiceInterface.notionChat(aiNotionRequest);
+            AIResponse = aiServiceInterface.notionChat(aiNotionRequest);
         } catch (RuntimeException ex) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(ex.getMessage());
+            throw new RuntimeException("Erro ao se comunicar com a AI");
         }
 
-        String validationResponse = validationServiceInterface.validateJson(aiResponse);
-        if ("Validation Server is not available.".equals(validationResponse)) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(validationResponse);
-        }
+        GenerateDocumentResponse generateDocumentResponse = documentServiceInterface.createDocument(AIResponse);
+        System.out.println(generateDocumentResponse);
+        if (generateDocumentResponse.fullPath() != ""){
+            CreateReportResponse response = new CreateReportResponse("Relat�rio criado com sucesso", AIResponse);
 
-        return ResponseEntity.ok(validationResponse);
+            return response;
+        } else {
+            throw new RuntimeException("N�o foi possivel salvar o relat�rio");
+        }
     }
 
+    @Override
+    public List<Document> getAllDocuments() {
+        return documentServiceInterface.getAllDocuments();
+    }
+
+    @Override
+    @Cacheable("/document")
+    public Document getDocumentById(Long id) {
+        return documentServiceInterface.getDocumentById(id);
+    }
 }

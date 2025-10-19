@@ -1,8 +1,16 @@
 package ufrn.imd.operation_server.service;
 
-import org.springframework.http.ResponseEntity;
-import ufrn.imd.operation_server.request.AINotionRequest;
+import ufrn.imd.operation_server.models.Document;
+import ufrn.imd.operation_server.request.AINotionRequestInput;
+import ufrn.imd.operation_server.response.CreateReportResponse;
+
+import java.util.List;
 
 public interface ReportService {
-    ResponseEntity<String> getTasksReport(AINotionRequest aiNotionRequest);
+    CreateReportResponse generateDocument(AINotionRequestInput aiNotionRequest);
+
+    List<Document> getAllDocuments();
+
+    Document getDocumentById(Long id);
+
 }

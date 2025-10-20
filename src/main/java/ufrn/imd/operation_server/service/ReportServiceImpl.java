@@ -44,7 +44,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    @Cacheable("/document")
+    @Cacheable("document")
     public Document getDocumentById(Long id) {
         return documentServiceInterface.getDocumentById(id);
     }

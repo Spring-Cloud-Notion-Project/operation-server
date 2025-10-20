@@ -4,11 +4,18 @@ package ufrn.imd.operation_server.configs;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.redisson.spring.cache.CacheConfig;
 import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.scheduling.annotation.Scheduled;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableCaching
@@ -24,8 +31,21 @@ public class RedissonConfig {
         return Redisson.create(config);
     }
 
+    @Primary
     @Bean
     public CacheManager cacheManager(RedissonClient redissonClient) {
-        return new RedissonSpringCacheManager(redissonClient);
+        Map<String, CacheConfig> config = new HashMap<>();
+        CacheConfig cacheConfig = new CacheConfig();
+        cacheConfig.setTTL(600000);
+
+        config.put("document", cacheConfig);
+
+        return new RedissonSpringCacheManager(redissonClient, config);
     }
+
+//    @Scheduled(fixedRate = 600000)
+//    @CacheEvict(value="/document", allEntries = true)
+//    public void clearCache() {
+//        System.out.println("Limpando cache...");
+//    }
 }

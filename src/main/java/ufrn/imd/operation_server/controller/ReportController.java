@@ -4,6 +4,8 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import ufrn.imd.operation_server.models.Document;
 import ufrn.imd.operation_server.request.AINotionRequestInput;
 import ufrn.imd.operation_server.response.CreateReportResponse;
@@ -28,25 +30,20 @@ public class ReportController {
 //    }
 
     @MutationMapping
-    public CreateReportResponse generateReport(@Argument AINotionRequestInput input){
-        CreateReportResponse response = reportService.generateDocument(input);
-
-        return response;
+    public Mono<CreateReportResponse> generateReport(@Argument AINotionRequestInput input){
+        return reportService.generateDocument(input);
     }
 
     //@GetMapping
     @QueryMapping
-    public List<Document> getAllReports(){
-        List<Document> allDocuments = reportService.getAllDocuments();
+    public Flux<Document> getAllReports(){
 
-        return allDocuments;
+        return reportService.getAllDocuments();
     }
 
     //@GetMapping("/{id}")
     @QueryMapping
-    public Document getDocumentById(@Argument String id){
-        Document document = reportService.getDocumentById(Long.valueOf(id));
-
-        return document;
+    public Mono<Document> getDocumentById(@Argument String id){
+        return reportService.getDocumentById(Long.valueOf(id));
     }
 }

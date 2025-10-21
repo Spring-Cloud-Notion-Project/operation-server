@@ -9,7 +9,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
-@EnableCaching
 public class OperationServerApplication {
 
 	public static void main(String[] args) {

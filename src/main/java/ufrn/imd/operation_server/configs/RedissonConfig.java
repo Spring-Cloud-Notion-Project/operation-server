@@ -3,6 +3,7 @@ package ufrn.imd.operation_server.configs;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
+import org.redisson.api.RedissonReactiveClient;
 import org.redisson.config.Config;
 import org.redisson.spring.cache.CacheConfig;
 import org.redisson.spring.cache.RedissonSpringCacheManager;
@@ -18,30 +19,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-@EnableCaching
 public class RedissonConfig {
 
-    @Bean(destroyMethod = "shutdown")
-    public RedissonClient redissonClient() {
+    @Bean(name = "redisson", destroyMethod = "shutdown")
+    public RedissonReactiveClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()
-                .setAddress("redis://redis-cache:6379")
-                .setConnectionMinimumIdleSize(8)
-                .setConnectionPoolSize(32);
-        return Redisson.create(config);
+                .setAddress("redis://redis-cache:6379");
+        return Redisson.create(config).reactive();
     }
 
-    @Primary
-    @Bean
-    public CacheManager cacheManager(RedissonClient redissonClient) {
-        Map<String, CacheConfig> config = new HashMap<>();
-        CacheConfig cacheConfig = new CacheConfig();
-        cacheConfig.setTTL(600000);
-
-        config.put("document", cacheConfig);
-
-        return new RedissonSpringCacheManager(redissonClient, config);
-    }
+//    @Primary
+//    @Bean
+//    public CacheManager cacheManager(RedissonClient redissonClient) {
+//        Map<String, CacheConfig> config = new HashMap<>();
+//        CacheConfig cacheConfig = new CacheConfig();
+//        cacheConfig.setTTL(600000);
+//
+//        config.put("document", cacheConfig);
+//
+//        return new RedissonSpringCacheManager(redissonClient, config);
+//    }
 
 //    @Scheduled(fixedRate = 600000)
 //    @CacheEvict(value="/document", allEntries = true)

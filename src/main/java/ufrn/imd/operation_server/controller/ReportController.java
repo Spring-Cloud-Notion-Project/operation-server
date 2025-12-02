@@ -1,5 +1,6 @@
 package ufrn.imd.operation_server.controller;
 
+import ufrn.imd.operation_server.dto.ReportDTO;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -8,10 +9,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ufrn.imd.operation_server.models.Document;
 import ufrn.imd.operation_server.request.AINotionRequestInput;
-import ufrn.imd.operation_server.response.CreateReportResponse;
+import ufrn.imd.operation_server.request.CreateReportRequest;
 import ufrn.imd.operation_server.service.ReportService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/reports")
@@ -22,28 +21,23 @@ public class ReportController {
         this.reportService = reportService;
     }
 
-//    @PostMapping("/chat")
-//    public ResponseEntity<CreateReportResponse> generateReport(@RequestBody AINotionRequest aiNotionRequest){
-//        CreateReportResponse response = reportService.generateDocument(aiNotionRequest);
-//
-//        return ResponseEntity.ok(response);
+//    @MutationMapping
+//    public Mono<Boolean> generateReport(@Argument AINotionRequestInput input){
+//        return reportService.generateDocument(input)
+//                .thenReturn(true);
 //    }
-
-    @MutationMapping
-    public Mono<CreateReportResponse> generateReport(@Argument AINotionRequestInput input){
-        return reportService.generateDocument(input);
-    }
-
-    //@GetMapping
     @QueryMapping
-    public Flux<Document> getAllReports(){
-
-        return reportService.getAllDocuments();
+    public Flux<ReportDTO> getAllReports(){
+        return reportService.getAllReports();
     }
 
-    //@GetMapping("/{id}")
     @QueryMapping
     public Mono<Document> getDocumentById(@Argument String id){
         return reportService.getDocumentById(Long.valueOf(id));
+    }
+
+    @MutationMapping
+    public Mono<ReportDTO> createReport(@Argument CreateReportRequest input) {
+        return reportService.createReport(input);
     }
 }

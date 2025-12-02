@@ -21,7 +21,6 @@ public class AIWebClientService {
                 .build();
     }
 
-    @PostMapping("/notion")
     @Retry(name = "ai-server")
     @RateLimiter(name = "ai-server")
     @Bulkhead(name = "ai-server")

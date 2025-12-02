@@ -25,8 +25,9 @@ public class RedissonConfig {
     public RedissonReactiveClient redissonClient() {
         Config config = new Config();
         config.useSingleServer()
-                .setAddress("redis://redis-cache:6379");
+                .setAddress("redis://localhost:6379");
         return Redisson.create(config).reactive();
+        // "redis://redis-cache:6379"
     }
 
 //    @Primary

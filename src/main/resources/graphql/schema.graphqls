@@ -1,16 +1,37 @@
 type Query{
-    getAllReports: [Document]
+    getAllReports: [Report]
     getDocumentById(id: ID!): Document
 }
 
 type Mutation {
     generateReport(input: AINotionRequestInput!): CreateReportResponse
+    createReport(input: CreateReportRequest): Report
 }
 
 type Document {
     id: ID!
     name: String
     fullPath: String
+}
+
+type Report {
+    id: ID!
+    title: String
+    fullPath: String
+    requestedDate: String
+    status: ReportStatus
+}
+
+input CreateReportRequest {
+    title: String
+    page: String
+    prompt: String
+}
+
+enum ReportStatus {
+    PENDING
+    COMPLETED
+    FAILED
 }
 
 input AINotionRequestInput {

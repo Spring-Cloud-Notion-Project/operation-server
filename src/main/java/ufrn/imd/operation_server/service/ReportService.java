@@ -9,13 +9,22 @@ import ufrn.imd.operation_server.request.AINotionRequestInput;
 import ufrn.imd.operation_server.request.CreateReportRequest;
 import ufrn.imd.operation_server.response.CreateReportResponse;
 
+import java.util.UUID;
+
 public interface ReportService {
 
     Flux<ReportDTO> getAllReports();
 
-//    Mono<CreateReportResponse> generateDocument(AINotionRequestInput aiNotionRequest);
+    // Mono<CreateReportResponse> generateDocument(AINotionRequestInput
+    // aiNotionRequest);
 
     Mono<Document> getDocumentById(Long id);
 
     Mono<ReportDTO> createReport(CreateReportRequest createReportRequest);
+
+    // Mono<ReportDTO> getReportById(UUID id);
+
+    void updateReportById(UUID id, String documentPath, ReportStatus status);
+
+    void deleteReportById(UUID id);
 }

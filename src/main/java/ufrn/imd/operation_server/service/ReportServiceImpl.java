@@ -1,5 +1,6 @@
 package ufrn.imd.operation_server.service;
 
+import jakarta.transaction.Transactional;
 import ufrn.imd.operation_server.dto.ReportDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class ReportServiceImpl implements ReportService {
     DocumentServiceInterface documentServiceInterface;
 
     @Autowired
-    DocumentCacheService documentCacheService;
+    ReportCacheService reportCacheService;
 
     @Autowired
     DocumentWebClientService documentWebClientService;
@@ -45,29 +46,34 @@ public class ReportServiceImpl implements ReportService {
         return Flux.fromIterable(reportRepository.findAll())
                 .map(report -> new ReportDTO(
                         report.getId(),
+                        report.getTitle(),
                         report.getDocumentPath(),
                         report.getRequestedDate(),
                         report.getStatus()));
     }
 
-//    @Override
-//    public Mono<CreateReportResponse> generateDocument(AINotionRequestInput aiNotionRequest) {
-//        // chamar o eventListener e emitir o report requested
-//        // return aiWebClientService.notionChat(aiNotionRequest)
-//        // .flatMap(aiResponse -> documentWebClientService.createDocument(aiResponse)
-//        // .map(generateDocumentResponse -> new CreateReportResponse("Relatório criado
-//        // com sucesso", aiResponse))
-//        // )
-//        // .onErrorMap(ex -> new RuntimeException("Erro ao gerar o documento", ex));
-//        // Mock
-//        CreateReportResponse response = new CreateReportResponse("Relatório criado com sucesso", "Ai response");
-//        return Mono.just(response).doOnNext(r -> eventListener.emitReportRequested(aiNotionRequest));
-//    }
+    // @Override
+    // public Mono<CreateReportResponse> generateDocument(AINotionRequestInput
+    // aiNotionRequest) {
+    // // chamar o eventListener e emitir o report requested
+    // // return aiWebClientService.notionChat(aiNotionRequest)
+    // // .flatMap(aiResponse -> documentWebClientService.createDocument(aiResponse)
+    // // .map(generateDocumentResponse -> new CreateReportResponse("Relatório
+    // criado
+    // // com sucesso", aiResponse))
+    // // )
+    // // .onErrorMap(ex -> new RuntimeException("Erro ao gerar o documento", ex));
+    // // Mock
+    // CreateReportResponse response = new CreateReportResponse("Relatório criado
+    // com sucesso", "Ai response");
+    // return Mono.just(response).doOnNext(r ->
+    // eventListener.emitReportRequested(aiNotionRequest));
+    // }
 
     @Override
     public Mono<Document> getDocumentById(Long id) {
         // return documentWebClientService.getDocumentById(id);
-        return documentCacheService.getDocumentById(id);
+        return reportCacheService.getDocumentById(id);
     }
 
     @Override
@@ -78,19 +84,47 @@ public class ReportServiceImpl implements ReportService {
                 createReportRequest.title(),
                 null,
                 OffsetDateTime.now(),
-                ReportStatus.PENDING
-        );
+                ReportStatus.PENDING);
 
         return Mono.fromCallable(() -> reportRepository.save(report))
                 .map(saved -> new ReportDTO(
                         saved.getId(),
+                        saved.getTitle(),
                         saved.getDocumentPath(),
                         saved.getRequestedDate(),
-                        saved.getStatus()
-                ))
+                        saved.getStatus()))
                 .doOnNext(dto -> {
-                    AINotionRequestInput aiRequest = new AINotionRequestInput(createReportRequest.page(), createReportRequest.prompt());
+                    AINotionRequestInput aiRequest = new AINotionRequestInput(createReportRequest.page(),
+                            createReportRequest.prompt());
                     eventListener.emitReportRequested(aiRequest, dto.id());
                 });
     }
+
+    // @Override
+    // public Mono<ReportDTO> getReportById(UUID id) {
+    // return reportCacheService.getReportById(id)
+    // .map(report -> new ReportDTO(
+    // report.getId(),
+    // report.getDocumentPath(),
+    // report.getRequestedDate(),
+    // report.getStatus()));
+    // }
+
+    @Override
+    @Transactional
+    public void updateReportById(UUID id, String documentPath, ReportStatus status) {
+        ReportEntity report = reportRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Relatório não encontrado com id: " + id));
+
+        report.setDocumentPath(documentPath);
+        report.setStatus(status);
+
+        reportRepository.save(report);
+    }
+
+    @Override
+    public void deleteReportById(UUID id) {
+        reportRepository.deleteById(id);
+    }
+
 }

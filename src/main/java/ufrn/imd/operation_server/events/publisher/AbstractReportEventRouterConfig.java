@@ -2,7 +2,7 @@ package ufrn.imd.operation_server.events.publisher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.kafka.support.KafkaHeaders;
+//import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import ufrn.imd.operation_server.events.saga.ReportEvent;
@@ -19,7 +19,8 @@ public abstract class AbstractReportEventRouterConfig {
         log.info("Requisição de relatório produzida: {}", event.reportId());
 
         return MessageBuilder.withPayload(event)
-                .setHeader(KafkaHeaders.KEY, event.reportId().toString())
+//                .setHeader(KafkaHeaders.KEY, event.reportId().toString())
+//                .setHeader("id", event.reportId().toString())
                 .setHeader("type", event.getClass().getSimpleName())
                 .build();
     }

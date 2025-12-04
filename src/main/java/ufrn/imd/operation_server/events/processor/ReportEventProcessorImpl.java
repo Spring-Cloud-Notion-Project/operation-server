@@ -19,20 +19,25 @@ public class ReportEventProcessorImpl implements ReportEventProcessor<ReportEven
     }
 
     @Override
-    public Mono<Void> handle(ReportEvent.DocumentCreated event) {
+    public Mono<Void> handleConsumer(ReportEvent.DocumentCreated event) {
+        log.info("Atualizando relatório {}.", event.reportId());
         return Mono.fromRunnable(() -> {
-            log.info("Atualizando relatório {}.", event.reportId());
             reportService.updateReportById(event.reportId(), event.path(), ReportStatus.COMPLETED);
         });
     }
 
     @Override
-    public Mono<Void> handle(ReportEvent.ReportFailed event) {
+    public Mono<Void> handleConsumer(ReportEvent.ReportFailed event) {
+        log.warn("Falha recebida para o relatório {}. Executando exclusão.", event.reportId());
         return Mono.fromRunnable(() -> {
-            log.warn("Falha recebida para o relatório {}. Executando exclusão.", event.reportId());
             reportService.deleteReportById(event.reportId());
         });
     }
 
+    @Override
+    public Mono<ReportEvent> handle(ReportEvent.ReportContentGenerated event) {
+        log.info("Conteudo gerado do relatório {}.", event.reportId());
+        return Mono.just(new ReportEvent.CreateReportDocument(event.reportId(), event.content()));
+    }
 
 }

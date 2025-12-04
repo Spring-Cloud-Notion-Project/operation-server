@@ -10,23 +10,12 @@ import ufrn.imd.operation_server.request.AINotionRequestInput;
 
 public sealed interface ReportEvent extends DomainEvent, ReportSaga {
 
-    record ReportRequested(UUID reportId, AINotionRequestInput payload) implements ReportEvent {
-        @Override
-        public Instant createdAt() {
-            return null;
-        }
-    }
-    record DocumentCreated(UUID reportId, String path) implements ReportEvent{
-        @Override
-        public Instant createdAt() {
-            return null;
-        }
-    }
+    record ReportRequested(UUID reportId, AINotionRequestInput payload) implements ReportEvent {}
+    record DocumentCreated(UUID reportId, String path) implements ReportEvent {}
 
-    record ReportFailed(UUID reportId) implements ReportEvent {
-        @Override
-        public Instant createdAt() {
-            return null;
-        }
-    }
+    record ReportContentGenerated(UUID reportId, String content) implements ReportEvent {}
+
+    record CreateReportDocument(UUID reportId, String content) implements ReportEvent {}
+
+    record ReportFailed(UUID reportId) implements ReportEvent {}
 }
